@@ -22,3 +22,10 @@ run/api:
 db/migrations/up: confirm
 	@echo 'Running up migrations...'
 	docker run -v "${PWD}/migrations":/migrations --network mvp_mvp-vm migrate/migrate -path=/migrations/ -database=${POSTGRES_DB_DSN} up
+
+## mocks/gen: generate mock for interface...
+.PHONY: mocks/gen
+mocks/gen:
+	mockgen -destination=mocks/repository/repo_mock.go -package=mocks -source=internal/repository/type.go
+	mockgen -destination=mocks/service/userservice_mock.go -package=mocks -source=internal/service/userservice/type.go
+	mockgen -destination=mocks/service/productservice_mock.go -package=mocks -source=internal/service/productservice/type.go

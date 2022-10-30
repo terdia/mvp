@@ -55,7 +55,7 @@ func (app *application) createProductHandler(w http.ResponseWriter, r *http.Requ
 }
 
 func (app *application) showProductHandler(w http.ResponseWriter, r *http.Request) {
-	id, err := app.extractIdParamFromContext(r)
+	id, err := app.extractIntParamFromContext(r, "id")
 	if err != nil || id < 1 {
 		app.notFoundResponse(w, r)
 		return
@@ -137,7 +137,7 @@ func (app *application) listProductHandler(rw http.ResponseWriter, r *http.Reque
 
 func (app *application) updateProductHandler(rw http.ResponseWriter, r *http.Request) {
 
-	id, err := app.extractIdParamFromContext(r)
+	id, err := app.extractIntParamFromContext(r, "id")
 	if err != nil {
 		app.notFoundResponse(rw, r)
 		return
@@ -167,7 +167,7 @@ func (app *application) updateProductHandler(rw http.ResponseWriter, r *http.Req
 		case errors.Is(err, data.ErrRecordNotFound):
 			app.notFoundResponse(rw, r)
 		case errors.Is(err, data.ErrNoPermission):
-			app.notFoundResponse(rw, r)
+			app.notPermittedRResponse(rw, r)
 		default:
 			app.serverErrorResponse(rw, r, err)
 		}
@@ -194,7 +194,7 @@ func (app *application) updateProductHandler(rw http.ResponseWriter, r *http.Req
 
 func (app *application) deleteProductHandler(rw http.ResponseWriter, r *http.Request) {
 
-	id, err := app.extractIdParamFromContext(r)
+	id, err := app.extractIntParamFromContext(r, "id")
 	if err != nil {
 		app.notFoundResponse(rw, r)
 		return
@@ -209,7 +209,7 @@ func (app *application) deleteProductHandler(rw http.ResponseWriter, r *http.Req
 		case errors.Is(err, data.ErrRecordNotFound):
 			app.notFoundResponse(rw, r)
 		case errors.Is(err, data.ErrNoPermission):
-			app.notFoundResponse(rw, r)
+			app.notPermittedRResponse(rw, r)
 		default:
 			app.serverErrorResponse(rw, r, err)
 		}
@@ -219,6 +219,63 @@ func (app *application) deleteProductHandler(rw http.ResponseWriter, r *http.Req
 	result := dto.ResponseObject{
 		StatusMsg: dto.Success,
 		Message:   "product successfully deleted",
+	}
+
+	if err = app.writeJson(rw, http.StatusOK, result, nil); err != nil {
+		app.serverErrorResponse(rw, r, err)
+		return
+	}
+}
+
+func (app *application) buyProductHandler(rw http.ResponseWriter, r *http.Request) {
+
+	id, err := app.extractIntParamFromContext(r, "id")
+	if err != nil {
+		app.notFoundResponse(rw, r)
+		return
+	}
+
+	amount, err := app.extractIntParamFromContext(r, "amount")
+	if err != nil {
+		app.notFoundResponse(rw, r)
+		return
+	}
+
+	product, err := app.productService.GetOne(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(rw, r)
+		default:
+			app.serverErrorResponse(rw, r, err)
+		}
+		return
+	}
+
+	purchaseResponse, validationErrs, err := app.transactionService.BuyProduct(
+		app.contextGetUser(r),
+		product,
+		int(amount),
+	)
+
+	if validationErrs != nil {
+		app.failedValidationResponse(rw, r, validationErrs)
+		return
+	}
+
+	if err != nil {
+		app.serverErrorResponse(rw, r, err)
+		return
+	}
+
+	app.logger.Printf("Purchase %+v", purchaseResponse)
+
+	result := dto.ResponseObject{
+		StatusMsg: dto.Success,
+		Message:   "Buy product successful",
+		Data: map[string]dto.BuyProductResponse{
+			"purchase": *purchaseResponse,
+		},
 	}
 
 	if err = app.writeJson(rw, http.StatusOK, result, nil); err != nil {

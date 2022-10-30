@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/terdia/mvp/internal/service/transaction"
 	"os"
 	"sync"
 
@@ -34,18 +35,23 @@ func main() {
 
 	tokenService := auth.NewTokenService(repositorytoken.NewTokenRepository(postgresDb))
 
+	newUserService := userservice.NewUserService(
+		repositoryuser.NewUserRepository(postgresDb),
+		tokenService,
+		repositorypermission.NewPermissionRepository(postgresDb),
+	)
+
+	newProductService := productservice.NewProductService(
+		repositoryproduct.NewProductRepository(postgresDb),
+	)
+
 	app := &application{
-		wg:     new(sync.WaitGroup),
-		config: &cfg,
-		logger: &logger,
-		userService: userservice.NewUserService(
-			repositoryuser.NewUserRepository(postgresDb),
-			tokenService,
-			repositorypermission.NewPermissionRepository(postgresDb),
-		),
-		productService: productservice.NewProductService(
-			repositoryproduct.NewProductRepository(postgresDb),
-		),
+		wg:                 new(sync.WaitGroup),
+		config:             &cfg,
+		logger:             &logger,
+		userService:        newUserService,
+		productService:     newProductService,
+		transactionService: transaction.NewTransactionService(newUserService, newProductService),
 	}
 
 	err = app.serve()

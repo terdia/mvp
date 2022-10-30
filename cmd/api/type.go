@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/terdia/mvp/internal/service/transaction"
 	"sync"
 
 	"github.com/rs/zerolog"
@@ -11,11 +12,12 @@ import (
 
 type (
 	application struct {
-		wg             *sync.WaitGroup
-		config         *config
-		logger         *zerolog.Logger
-		userService    userservice.UserService
-		productService productservice.ProductService
+		wg                 *sync.WaitGroup
+		config             *config
+		logger             *zerolog.Logger
+		userService        userservice.UserService
+		productService     productservice.ProductService
+		transactionService transaction.Service
 	}
 
 	config struct {

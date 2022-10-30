@@ -54,7 +54,6 @@ func (app *application) getAuthenticationToken(rw http.ResponseWriter, r *http.R
 	)
 	if validationErrors != nil {
 		app.failedValidationResponse(rw, r, validationErrors)
-
 		return
 	}
 
@@ -80,6 +79,60 @@ func (app *application) getAuthenticationToken(rw http.ResponseWriter, r *http.R
 		Data: dto.TokenResponse{
 			Token: tokenDto,
 		},
+	}, nil); err != nil {
+		app.serverErrorResponse(rw, r, err)
+		return
+	}
+}
+
+func (app *application) depositBalanceHandler(rw http.ResponseWriter, r *http.Request) {
+
+	amount, err := app.extractIntParamFromContext(r, "amount")
+	if err != nil {
+		app.notFoundResponse(rw, r)
+		return
+	}
+
+	user := app.contextGetUser(r)
+	validationErrors, err := app.transactionService.DepositCoin(user, int(amount))
+	if validationErrors != nil {
+		app.failedValidationResponse(rw, r, validationErrors)
+		return
+	}
+
+	if err != nil {
+		app.serverErrorResponse(rw, r, err)
+		return
+	}
+
+	if err = app.writeJson(rw, http.StatusOK, dto.ResponseObject{
+		StatusMsg: dto.Success,
+		Message:   "Deposit was successful",
+		Data:      dto.UserResponse{User: getAPIUser(user)},
+	}, nil); err != nil {
+		app.serverErrorResponse(rw, r, err)
+		return
+	}
+}
+
+func (app *application) resetBalanceHandler(rw http.ResponseWriter, r *http.Request) {
+
+	user := app.contextGetUser(r)
+	validationErrors, err := app.transactionService.DepositReset(user)
+	if validationErrors != nil {
+		app.failedValidationResponse(rw, r, validationErrors)
+		return
+	}
+
+	if err != nil {
+		app.serverErrorResponse(rw, r, err)
+		return
+	}
+
+	if err = app.writeJson(rw, http.StatusOK, dto.ResponseObject{
+		StatusMsg: dto.Success,
+		Message:   "Reset balance was successful",
+		Data:      dto.UserResponse{User: getAPIUser(user)},
 	}, nil); err != nil {
 		app.serverErrorResponse(rw, r, err)
 		return

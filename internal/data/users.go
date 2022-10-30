@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	seller = "seller"
+	roleSeller = "seller"
+	roleBuyer  = "buyer"
 )
 
 var AnonymousUser = &User{}
@@ -29,10 +30,14 @@ func (u *User) IsAnonymous() bool {
 }
 
 func (u *User) GetRolePermissions() []string {
-	permissions := []string{"products:read"}
+	permissions := []string{PermissionProductsRead}
 
-	if u.Role == seller {
-		permissions = append(permissions, "products:write")
+	if u.Role == roleSeller {
+		permissions = append(permissions, PermissionProductsWrite)
+	}
+
+	if u.Role == roleBuyer {
+		permissions = append(permissions, PermissionProductsBuy)
 	}
 
 	return permissions
@@ -66,19 +71,25 @@ func (p *Password) Matches(plaintextPassword string) (bool, error) {
 	return true, nil
 }
 
-func ValidateUser(v *validator.Validator, user *User) {
-	v.Check(user.Username != "", "username", "must be provided")
-	v.Check(len(user.Username) <= 500, "username", "must not be more than 500 bytes long")
+func (u *User) Validate(v *validator.Validator) {
+	v.Check(u.Username != "", "username", "must be provided")
+	v.Check(len(u.Username) <= 500, "username", "must not be more than 500 bytes long")
 
-	if user.Password.Plaintext != nil {
-		validatePasswordPlaintext(v, *user.Password.Plaintext)
+	if u.Password.Plaintext != nil {
+		validatePasswordPlaintext(v, *u.Password.Plaintext)
 	}
 
-	if user.Deposit != 0 {
-		validateDeposit(v, user.Deposit)
+	if u.Deposit != 0 {
+		ValidateDeposit(v, u.Deposit)
 	}
 
-	if user.Password.Hash == nil {
+	v.Check(
+		validator.In(u.Role, []string{roleBuyer, roleSeller}),
+		"role",
+		"must be seller or buyer",
+	)
+
+	if u.Password.Hash == nil {
 		panic("missing password hash for user")
 	}
 }
@@ -89,8 +100,8 @@ func validatePasswordPlaintext(v *validator.Validator, password string) {
 	v.Check(len(password) <= 72, "password", "must not be more than 72 bytes long")
 }
 
-func validateDeposit(v *validator.Validator, amount int) {
-	allowed := []int{5, 10, 20, 50, 100}
+func ValidateDeposit(v *validator.Validator, amount int) {
+	allowed := []int{CoinFiveCent, CoinTenCent, CoinTwentyCent, CoinFiftyCent, CoinHundredCent}
 
 	v.Check(
 		validator.In(amount, allowed),

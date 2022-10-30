@@ -6,30 +6,42 @@ import (
 	"github.com/terdia/mvp/internal/data"
 )
 
-type ProductRequest struct {
-	Name     *string `json:"name"`
-	Cost     int     `json:"cost"`
-	Quantity int     `json:"amount_available"`
-}
+type (
+	ProductRequest struct {
+		Name     *string `json:"name"`
+		Cost     int     `json:"cost"`
+		Quantity int     `json:"amount_available"`
+	}
 
-type ProductResponse struct {
-	Product APIProduct `json:"product"`
-}
+	ProductResponse struct {
+		Product APIProduct `json:"product"`
+	}
 
-type APIProduct struct {
-	ID              int64     `json:"id"`
-	Cost            int       `json:"cost"`
-	Name            string    `json:"name"`
-	CreatedAt       time.Time `json:"created_at"`
-	AmountAvailable int       `json:"amount_available"`
-}
+	APIProduct struct {
+		ID              int64     `json:"id"`
+		Cost            int       `json:"cost"`
+		Name            string    `json:"name"`
+		CreatedAt       time.Time `json:"created_at"`
+		AmountAvailable int       `json:"amount_available"`
+	}
 
-type ListProductRequest struct {
-	Name    string
-	Filters data.Filters
-}
+	ListProductRequest struct {
+		Name    string
+		Filters data.Filters
+	}
 
-type ListProductResponse struct {
-	Metadata *data.Metadata `json:"metadata,omitempty"`
-	Products []APIProduct   `json:"products"`
-}
+	ListProductResponse struct {
+		Metadata *data.Metadata `json:"metadata,omitempty"`
+		Products []APIProduct   `json:"products"`
+	}
+
+	BuyProductResponse struct {
+		AmountSpent int `json:"amount_spent"`
+		Product     struct {
+			Name     string `json:"name"`
+			Cost     int    `json:"cost"`
+			Quantity int    `json:"quantity_purchased"`
+		} `json:"product_details"`
+		Change []int `json:"change"`
+	}
+)

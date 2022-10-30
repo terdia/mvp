@@ -15,3 +15,5 @@ var (
 const (
 	TokenScopeAuthentication = "authentication"
 )
+
+type ValidationErrors map[string]string

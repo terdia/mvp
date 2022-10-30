@@ -8,15 +8,16 @@ import (
 )
 
 type UserService interface {
-	Create(request dto.CreateUserRequest) (*data.User, ValidationErrors, error)
+	Create(request dto.CreateUserRequest) (*data.User, data.ValidationErrors, error)
 	GetPermissions(userID int64) (data.Permissions, error)
 	GetUserByToken(tokenPlainText, scope string) (*data.User, error)
-	CreateAuthenticationToken(request dto.AuthTokenRequest, scope string) (*data.Token, ValidationErrors, error)
+	CreateAuthenticationToken(
+		request dto.AuthTokenRequest, scope string,
+	) (*data.Token, data.ValidationErrors, error)
+	UpdateUser(*data.User) error
 }
 
 type (
-	ValidationErrors map[string]string
-
 	userService struct {
 		repo           repository.UserRepository
 		tokenService   auth.TokenService

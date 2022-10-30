@@ -23,7 +23,7 @@ func NewUserService(
 	}
 }
 
-func (srv *userService) Create(request dto.CreateUserRequest) (*data.User, ValidationErrors, error) {
+func (srv *userService) Create(request dto.CreateUserRequest) (*data.User, data.ValidationErrors, error) {
 
 	user := &data.User{
 		Role:     request.Role,
@@ -37,7 +37,7 @@ func (srv *userService) Create(request dto.CreateUserRequest) (*data.User, Valid
 
 	//validate request
 	v := validator.New()
-	if data.ValidateUser(v, user); !v.Valid() {
+	if user.Validate(v); !v.Valid() {
 		return nil, v.Errors, nil
 	}
 
@@ -61,7 +61,7 @@ func (srv *userService) Create(request dto.CreateUserRequest) (*data.User, Valid
 func (srv *userService) CreateAuthenticationToken(
 	request dto.AuthTokenRequest,
 	scope string,
-) (*data.Token, ValidationErrors, error) {
+) (*data.Token, data.ValidationErrors, error) {
 
 	v := validator.New()
 	v.Check(len(request.Username) > 0, "username", "must not be empty")
@@ -95,4 +95,8 @@ func (srv *userService) GetPermissions(userID int64) (data.Permissions, error) {
 
 func (srv *userService) GetUserByToken(tokenPlainText, scope string) (*data.User, error) {
 	return srv.repo.GetForToken(tokenPlainText, scope)
+}
+
+func (srv *userService) UpdateUser(user *data.User) error {
+	return srv.repo.Update(user)
 }

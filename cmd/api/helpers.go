@@ -16,20 +16,19 @@ import (
 	"github.com/terdia/mvp/pkg/validator"
 )
 
-func (app *application) extractIdParamFromContext(r *http.Request) (int64, error) {
+func (app *application) extractIntParamFromContext(r *http.Request, key string) (int64, error) {
 
-	stringId := chi.URLParam(r, "id")
+	stringId := chi.URLParam(r, key)
 	if stringId == "" {
-		return 0, errors.New("invalid parameter, missing id")
+		return 0, fmt.Errorf("invalid parameter, missing key %s", key)
 	}
 
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	id, err := strconv.ParseInt(chi.URLParam(r, key), 10, 64)
 	if err != nil {
-		return 0, errors.New("invalid Id")
+		return 0, fmt.Errorf("invalid %s, expected int", key)
 	}
 
-	return int64(id), nil
-
+	return id, nil
 }
 
 func (app *application) readInt(qs url.Values, key string, defaultValue int, v *validator.Validator) int {
