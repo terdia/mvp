@@ -1,1 +1,32 @@
 # for setting service for local development
+version: "3"
+services:
+  vm_api:
+    container_name: vending_machine
+    restart: unless-stopped
+    build: .
+    volumes:
+      - .:/go/src/vm
+    ports:
+      - "4000:4000"
+    networks:
+      - mvp-vm
+    environment:
+      POSTGRES_DB_DSN: ${POSTGRES_DB_DSN}
+      CORS_ALLOWED: ${CORS_ALLOWED}
+      DEBUG: ${DEBUG}
+      PORT: ${APP_PORT}
+  vm_db:
+    container_name: postgres
+    image: postgres
+    restart: unless-stopped
+    networks:
+      - mvp-vm
+    ports:
+      - "5436:5432"
+    environment:
+      POSTGRES_USER: vm
+      POSTGRES_PASSWORD: pa55word
+      POSTGRES_DB: vm_db
+networks:
+  mvp-vm:
