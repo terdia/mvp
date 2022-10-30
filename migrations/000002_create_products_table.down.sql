@@ -1,0 +1,2 @@
+ALTER TABLE products DROP CONSTRAINT IF EXISTS cost_check;
+DROP TABLE IF EXISTS products;
