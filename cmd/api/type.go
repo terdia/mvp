@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/terdia/mvp/internal/service/transaction"
 	"sync"
 
 	"github.com/rs/zerolog"
 
 	"github.com/terdia/mvp/internal/service/productservice"
+	"github.com/terdia/mvp/internal/service/transaction"
 	"github.com/terdia/mvp/internal/service/userservice"
 )
 

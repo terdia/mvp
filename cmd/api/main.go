@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/terdia/mvp/internal/service/transaction"
 	"os"
 	"sync"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/terdia/mvp/internal/repository/repositoryuser"
 	"github.com/terdia/mvp/internal/service/auth"
 	"github.com/terdia/mvp/internal/service/productservice"
+	"github.com/terdia/mvp/internal/service/transaction"
 	"github.com/terdia/mvp/internal/service/userservice"
 )
 

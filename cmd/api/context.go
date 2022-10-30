@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"github.com/terdia/mvp/internal/data"
 	"net/http"
+
+	"github.com/terdia/mvp/internal/data"
 )
 
 type contextKey string
