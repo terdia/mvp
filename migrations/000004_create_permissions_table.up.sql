@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users_permissions (
 INSERT INTO permissions (code)
 VALUES
     ('products:read'),
+    ('products:buy'),
     ('products:write');
 
 CREATE INDEX IF NOT EXISTS username_idx ON permissions (code)

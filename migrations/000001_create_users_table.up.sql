@@ -10,5 +10,4 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE INDEX IF NOT EXISTS username_idx ON users (username);
 CREATE INDEX IF NOT EXISTS username_idx ON users (role);
 
-ALTER TABLE users ADD CONSTRAINT deposit_check CHECK (deposit in (0, 5, 10, 20, 50, 100));
 ALTER TABLE users ADD CONSTRAINT role_check CHECK (role in ('seller', 'buyer'));

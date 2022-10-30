@@ -1,3 +1,2 @@
-ALTER TABLE users DROP CONSTRAINT IF EXISTS deposit_check;
 DROP TABLE IF EXISTS users;
 
