@@ -30,7 +30,7 @@ func main() {
 		logger.Fatal().Err(err).Msg("Failed to open connection to db")
 	}
 
-	defer postgresDb.Close()
+	defer postgresDb.Close() //nolint
 	logger.Printf("database connection pool established")
 
 	tokenService := auth.NewTokenService(repositorytoken.NewTokenRepository(postgresDb))

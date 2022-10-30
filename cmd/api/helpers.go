@@ -72,7 +72,7 @@ func (app *application) writeJson(rw http.ResponseWriter, status int, envelop dt
 
 	rw.Header().Set("Content-Type", "application/json")
 	rw.WriteHeader(status)
-	rw.Write(js)
+	rw.Write(js) //nolint
 
 	return nil
 }
